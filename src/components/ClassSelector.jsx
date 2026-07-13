@@ -43,7 +43,7 @@ export default function ClassSelector({
         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
           Grille d'évaluation
         </p>
-        <div className="flex gap-3 text-sm font-bold">
+        <div className="flex flex-wrap gap-3 text-sm font-bold">
           <span className="text-red-500">A = 50%</span>
           <span className="text-amber-500">B = 75%</span>
           <span className="text-emerald-500">C = 100%</span>

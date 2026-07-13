@@ -145,36 +145,63 @@ export default function AdminDashboard({ user }) {
               <p className="text-sm">pour les filtres sélectionnés.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="text-left px-4 py-3 font-semibold text-slate-600">Date</th>
-                    <th className="text-left px-4 py-3 font-semibold text-slate-600">Classe</th>
-                    <th className="text-left px-4 py-3 font-semibold text-slate-600">Année</th>
-                    <th className="text-left px-4 py-3 font-semibold text-slate-600">Semestre</th>
-                    <th className="text-left px-4 py-3 font-semibold text-slate-600">Commentaire</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((ev) => (
-                    <tr key={ev.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3 text-slate-600">
+            <>
+              {/* MOBILE: Cards */}
+              <div className="lg:hidden space-y-3">
+                {filtered.map((ev) => (
+                  <div key={ev.id} className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-slate-800 text-sm">{ev.classe}</span>
+                      <span className="text-xs text-slate-400">
                         {ev.timestamp?.toDate?.()
                           ? ev.timestamp.toDate().toLocaleDateString("fr-FR")
                           : "—"}
-                      </td>
-                      <td className="px-4 py-3 font-medium text-slate-800">{ev.classe}</td>
-                      <td className="px-4 py-3 text-slate-600">{ev.academicYear}</td>
-                      <td className="px-4 py-3 text-slate-600">{ev.semester}</td>
-                      <td className="px-4 py-3 text-slate-500 max-w-xs truncate">
-                        {ev.commentaires || "—"}
-                      </td>
+                      </span>
+                    </div>
+                    <div className="flex gap-2 text-xs text-slate-500">
+                      <span>{ev.academicYear}</span>
+                      <span>•</span>
+                      <span>{ev.semester}</span>
+                    </div>
+                    {ev.commentaires && (
+                      <p className="text-xs text-slate-500 mt-2 line-clamp-2">{ev.commentaires}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* DESKTOP: Table */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-200">
+                      <th className="text-left px-4 py-3 font-semibold text-slate-600">Date</th>
+                      <th className="text-left px-4 py-3 font-semibold text-slate-600">Classe</th>
+                      <th className="text-left px-4 py-3 font-semibold text-slate-600">Année</th>
+                      <th className="text-left px-4 py-3 font-semibold text-slate-600">Semestre</th>
+                      <th className="text-left px-4 py-3 font-semibold text-slate-600">Commentaire</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filtered.map((ev) => (
+                      <tr key={ev.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                        <td className="px-4 py-3 text-slate-600">
+                          {ev.timestamp?.toDate?.()
+                            ? ev.timestamp.toDate().toLocaleDateString("fr-FR")
+                            : "—"}
+                        </td>
+                        <td className="px-4 py-3 font-medium text-slate-800">{ev.classe}</td>
+                        <td className="px-4 py-3 text-slate-600">{ev.academicYear}</td>
+                        <td className="px-4 py-3 text-slate-600">{ev.semester}</td>
+                        <td className="px-4 py-3 text-slate-500 max-w-xs truncate">
+                          {ev.commentaires || "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       </div>

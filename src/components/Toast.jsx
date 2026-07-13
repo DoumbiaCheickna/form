@@ -13,9 +13,9 @@ export default function Toast({ message, type = "info", onClose, duration = 3000
   }, [onClose, duration]);
 
   return (
-    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[10000] animate-in slide-in-from-top duration-300">
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[10000] animate-in slide-in-from-top duration-300 w-full max-w-md px-4">
       <div
-        className={`${colorMap[type]} text-white px-6 py-3 rounded-xl shadow-lg font-semibold text-sm flex items-center gap-2`}
+        className={`${colorMap[type]} text-white px-6 py-3 rounded-xl shadow-lg font-semibold text-sm flex items-center gap-2 break-words`}
       >
         {type === "success" && (
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
