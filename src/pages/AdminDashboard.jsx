@@ -7,9 +7,9 @@ import StatsPanel from "../components/StatsPanel";
 
 function StatCard({ label, value, color = "from-[var(--color-primary)] to-[var(--color-primary-dark)]" }) {
   return (
-    <div className={`bg-gradient-to-br ${color} rounded-xl p-4 text-white shadow-lg`}>
+    <div className={`bg-gradient-to-br ${color} rounded-xl p-3 sm:p-4 text-white shadow-lg`}>
       <p className="text-xs font-medium opacity-80">{label}</p>
-      <p className="text-3xl font-bold">{value}</p>
+      <p className="text-2xl sm:text-3xl font-bold">{value}</p>
     </div>
   );
 }
@@ -159,7 +159,7 @@ export default function AdminDashboard({ user }) {
         {activeTab === "evals" && (
           <>
             {/* Summary cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               <StatCard label="Total general" value={totalAll} />
               <StatCard label={`Annee ${filterYear}`} value={totalYear} color="from-emerald-600 to-emerald-700" />
               <StatCard label={`${filterSemester} - ${filterYear}`} value={totalFiltered} color="from-amber-500 to-amber-600" />

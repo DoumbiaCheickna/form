@@ -111,7 +111,7 @@ function analyze(evaluations) {
 }
 
 function PieChart({ data, size = "normal" }) {
-  const h = size === "small" ? "h-[160px]" : "h-[220px]";
+  const h = size === "small" ? "h-[130px] sm:h-[160px]" : "h-[180px] sm:h-[220px]";
   return (
     <div className={h}>
       <Pie
@@ -119,7 +119,7 @@ function PieChart({ data, size = "normal" }) {
           labels: ["Pas mal (A)", "Bon (B)", "Tres bien (C)"],
           datasets: [{ data: [data.A, data.B, data.C], backgroundColor: PIE_COLORS }],
         }}
-        options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { font: { size: 11 } } } } }}
+        options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { font: { size: 10 } } } } }}
       />
     </div>
   );
@@ -137,7 +137,7 @@ function BarChart({ labels, dataMap, options }) {
     ...options,
   };
   return (
-    <div className="h-[200px]">
+    <div className="h-[180px] sm:h-[200px]">
       <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false, ...opts }} />
     </div>
   );
@@ -261,12 +261,14 @@ function LevelSection({ level, levelEvals, stats }) {
           <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">
             Enseignants ({levelClassement.length})
           </h4>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {levelClassement.map((t, i) => (
-              <div key={t.prof} className="bg-white rounded-lg border border-slate-100 p-3 text-center space-y-1">
-                <span className="text-xs font-bold text-slate-400">#{i + 1}</span>
-                <p className="text-xs font-semibold text-slate-700 truncate">{t.prof}</p>
-                <p className="text-sm font-bold text-slate-800">{t.score}/3</p>
+              <div key={t.prof} className="bg-white rounded-lg border border-slate-100 p-3 flex items-center gap-3">
+                <span className="text-xs font-bold text-slate-400 shrink-0">#{i + 1}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold text-slate-700 truncate">{t.prof}</p>
+                  <p className="text-sm font-bold text-slate-800">{t.score}/3</p>
+                </div>
                 <ScoreBadge score={t.score} />
               </div>
             ))}
@@ -427,14 +429,18 @@ export default function StatsPanel({ evaluations }) {
             ({filteredStats.classement.length} enseignants)
           </span>
         </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filteredStats.classement.map((t, i) => (
-            <div key={t.prof} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm text-center space-y-2">
-              <span className="text-xs font-bold text-slate-400">#{i + 1}</span>
-              <PieChart data={t.data} size="small" />
-              <p className="text-xs font-semibold text-slate-700 truncate">{t.prof}</p>
-              <p className="text-sm font-bold text-slate-800">{t.score}/3</p>
-              <ScoreBadge score={t.score} />
+            <div key={t.prof} className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm flex items-center gap-3">
+              <span className="text-xs font-bold text-slate-400 shrink-0">#{i + 1}</span>
+              <div className="hidden sm:block shrink-0">
+                <PieChart data={t.data} size="small" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-slate-700 truncate">{t.prof}</p>
+                <p className="text-sm font-bold text-slate-800">{t.score}/3</p>
+                <ScoreBadge score={t.score} />
+              </div>
             </div>
           ))}
         </div>
@@ -449,7 +455,7 @@ export default function StatsPanel({ evaluations }) {
           <select
             value={profSelect}
             onChange={(e) => setProfSelect(e.target.value)}
-            className="flex-1 min-w-[200px] px-3 py-2 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
+            className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
           >
             <option value="">-- Choisir un enseignant --</option>
             {filteredStats.teachers.map((t) => (
@@ -467,7 +473,7 @@ export default function StatsPanel({ evaluations }) {
           </select>
         </div>
         {profSelect && Object.keys(profNF).length > 0 && (
-          <div className="max-w-[600px] h-[250px]">
+          <div className="w-full max-w-[600px] h-[220px] sm:h-[250px]">
             {chartType === "bar" && <Bar data={{ labels: Object.keys(profNF), datasets: [{ label: "Score", data: Object.keys(profNF).map((l) => getScore(profNF[l])), backgroundColor: BAR_COLORS }] }} options={{ responsive: true, maintainAspectRatio: false, ...barOpts }} />}
             {chartType === "radar" && <Radar data={radarData} options={{ responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 3 } }, plugins: { legend: { display: false } } }} />}
             {chartType === "pie" && (
@@ -506,23 +512,23 @@ export default function StatsPanel({ evaluations }) {
       {showModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-3xl shadow-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto space-y-6">
+          <div className="relative bg-white rounded-3xl shadow-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto space-y-4 sm:space-y-6">
             <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600 cursor-pointer">&times;</button>
             <h2 className="text-lg font-bold text-slate-800 text-center">Dashboard Global de l&apos;Enseignement</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] rounded-xl p-4 text-white">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+              <div className="bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] rounded-xl p-3 sm:p-4 text-white">
                 <p className="text-xs opacity-80">Evaluations</p>
-                <p className="text-2xl font-bold">{evaluations.length}</p>
+                <p className="text-xl sm:text-2xl font-bold">{evaluations.length}</p>
               </div>
-              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-4 text-white">
+              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-3 sm:p-4 text-white">
                 <p className="text-xs opacity-80">Enseignants</p>
-                <p className="text-2xl font-bold">{stats.teachers.length}</p>
+                <p className="text-xl sm:text-2xl font-bold">{stats.teachers.length}</p>
               </div>
-              <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-4 text-white">
+              <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-3 sm:p-4 text-white">
                 <p className="text-xs opacity-80">Score global</p>
-                <p className="text-2xl font-bold">{globalScore}/3</p>
+                <p className="text-xl sm:text-2xl font-bold">{globalScore}/3</p>
               </div>
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 sm:p-4 text-white">
                 <p className="text-xs opacity-80">Top 3</p>
                 <div className="text-xs mt-1 space-y-0.5">
                   {stats.classement.slice(0, 3).map((t) => (

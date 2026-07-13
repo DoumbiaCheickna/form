@@ -57,7 +57,7 @@ export default function EvaluationTable({ courses, responses, onResponseChange }
                 <p className="font-semibold text-slate-800 text-sm">{cours.matiere}</p>
                 <p className="text-xs text-slate-500">{cours.prof}</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {questions.map((q) => {
                   const name = `${slug}_${q.id.toLowerCase()}`;
                   return (

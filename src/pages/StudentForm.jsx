@@ -119,8 +119,8 @@ export default function StudentForm() {
 
           {selectedClass && courses.length > 0 && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h2 className="text-base sm:text-lg font-bold text-slate-800">
                   Évaluation — {selectedClass}
                 </h2>
                 <span className="text-xs text-slate-400">
