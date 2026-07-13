@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import StudentForm from "./pages/StudentForm";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import SetupPage from "./pages/SetupPage";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -31,6 +32,7 @@ export default function App() {
             </>
           }
         />
+        <Route path="/setup" element={<SetupPage />} />
         <Route
           path="/admin"
           element={
