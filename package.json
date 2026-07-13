@@ -11,17 +11,20 @@
     "seed": "node seed.js"
   },
   "dependencies": {
+    "chart.js": "^4.5.1",
     "firebase": "^11.9.1",
     "react": "^19.2.7",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.7",
-    "react-router-dom": "^7.6.2"
+    "react-router-dom": "^7.6.2",
+    "wordcloud2": "^1.0.0"
   },
   "devDependencies": {
-    "firebase-admin": "^12.6.0",
     "@tailwindcss/vite": "^4.1.11",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "firebase-admin": "^12.6.0",
     "oxlint": "^1.71.0",
     "tailwindcss": "^4.1.11",
     "vite": "^8.1.1"
