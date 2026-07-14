@@ -71,7 +71,7 @@ function analyze(evaluations) {
   const byLevelSemester = {};
 
   evaluations.forEach((ev) => {
-    if (ev.commentaires) comments.push(ev.commentaires);
+    if (ev.commentaires) comments.push({ text: ev.commentaires, semester: ev.semester || "S?", classe: ev.classe || "Inconnue" });
     const sem = ev.semester || "S?";
     const niv = getNiveau(ev.classe || "");
     const fil = getFiliere(ev.classe || "");
@@ -147,7 +147,7 @@ function WordCloudCanvas({ comments }) {
     async function draw() {
       const WordCloud = (await import("wordcloud2")).default;
       if (cancelled || !canvasRef.current) return;
-      const text = comments.join(" ").toLowerCase();
+      const text = comments.map((c) => c.text || c).join(" ").toLowerCase();
       const words = text.replace(/[.,;:!?()\-""''[\]{}]/g, " ").split(/\s+/).filter((w) => w.length > 3);
       const freq = {};
       words.forEach((w) => { freq[w] = (freq[w] || 0) + 1; });
@@ -296,9 +296,22 @@ export default function StatsPanel({ evaluations }) {
   const [profSelect, setProfSelect] = useState("");
   const [chartType, setChartType] = useState("bar");
   const [showModal, setShowModal] = useState(false);
+  const [commentSemFilter, setCommentSemFilter] = useState("");
 
   const stats = useMemo(() => analyze(evaluations), [evaluations]);
   const globalScore = getScore(stats.global);
+
+  const allSemesters = useMemo(() => {
+    return [...new Set(evaluations.map((e) => e.semester).filter(Boolean))].sort();
+  }, [evaluations]);
+
+  const filteredComments = useMemo(() => {
+    let comments = filteredStats.comments;
+    if (commentSemFilter) {
+      comments = comments.filter((c) => c.semester === commentSemFilter);
+    }
+    return comments;
+  }, [filteredStats.comments, commentSemFilter]);
 
   const filteredEvals = useMemo(() => {
     if (activeLevel === "all") return evaluations;
@@ -499,23 +512,41 @@ export default function StatsPanel({ evaluations }) {
 
       {/* Commentaires */}
       <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-6 border border-white/20 space-y-4">
-        <h3 className="text-base font-bold text-slate-800">
-          Commentaires ({filteredStats.comments.length})
-        </h3>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h3 className="text-base font-bold text-slate-800">
+            Commentaires ({filteredStats.comments.length})
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            <select
+              value={commentSemFilter}
+              onChange={(e) => setCommentSemFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
+            >
+              <option value="">Tous les semestres</option>
+              {allSemesters.map((s) => (
+                <option key={s} value={s}>{SEMESTER_LABELS[s] || s}</option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div className="max-h-[300px] overflow-y-auto space-y-2">
-          {filteredStats.comments.length === 0 ? (
+          {filteredComments.length === 0 ? (
             <p className="text-sm text-slate-400">Aucun commentaire.</p>
           ) : (
-            filteredStats.comments.map((c, i) => (
-              <div key={i} className="text-xs text-slate-600 bg-slate-50 rounded-lg p-2.5 border border-slate-100">
-                {c}
+            filteredComments.map((c, i) => (
+              <div key={i} className="text-xs text-slate-600 bg-slate-50 rounded-lg p-2.5 border border-slate-100 space-y-1">
+                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
+                  <span className="bg-slate-200 px-1.5 py-0.5 rounded">{SEMESTER_LABELS[c.semester] || c.semester}</span>
+                  <span>{c.classe}</span>
+                </div>
+                <p>{c.text}</p>
               </div>
             ))
           )}
         </div>
         <div>
           <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Nuage de mots</h4>
-          <WordCloudCanvas comments={filteredStats.comments} />
+          <WordCloudCanvas comments={filteredComments} />
         </div>
       </div>
 
