@@ -305,6 +305,13 @@ export default function StatsPanel({ evaluations }) {
     return [...new Set(evaluations.map((e) => e.semester).filter(Boolean))].sort();
   }, [evaluations]);
 
+  const filteredEvals = useMemo(() => {
+    if (activeLevel === "all") return evaluations;
+    return evaluations.filter((e) => getNiveau(e.classe || "") === activeLevel);
+  }, [evaluations, activeLevel]);
+
+  const filteredStats = useMemo(() => analyze(filteredEvals), [filteredEvals]);
+
   const filteredComments = useMemo(() => {
     let comments = filteredStats.comments;
     if (commentSemFilter) {
@@ -312,13 +319,6 @@ export default function StatsPanel({ evaluations }) {
     }
     return comments;
   }, [filteredStats.comments, commentSemFilter]);
-
-  const filteredEvals = useMemo(() => {
-    if (activeLevel === "all") return evaluations;
-    return evaluations.filter((e) => getNiveau(e.classe || "") === activeLevel);
-  }, [evaluations, activeLevel]);
-
-  const filteredStats = useMemo(() => analyze(filteredEvals), [filteredEvals]);
 
   const profNF = useMemo(() => {
     if (!profSelect) return {};
