@@ -1,11 +1,11 @@
 export const questions = [
-  { id: "Q1", text: "Est-ce qu'il vous a décliné les grandes lignes du programme en début du cours ?" },
+  { id: "Q1", text: "Est-ce qu'il vous a décliné les grandes lignes du programme en début d'année ?" },
   { id: "Q2", text: "Est-ce qu'il suit ce programme ?" },
-  { id: "Q3", text: "Est-ce qu'il donne suffisamment de travail à faire à la maison ?" },
-  { id: "Q4", text: "Est-ce qu'il prend le temps d'expliquer et répondre à vos questions ?" },
+  { id: "Q3", text: "Est-ce qu'il donne suffisamment de travail à faire à la maison (exercice, recherche etc…) ?" },
+  { id: "Q4", text: "Est-ce qu'il prend le temps de répondre à vos questions ?" },
   { id: "Q5", text: "Vient-il et quitte-t-il à l'heure ?" },
   { id: "Q6", text: "Utilise-t-il le maximum de temps pour ses enseignements une fois en classe ?" },
-  { id: "Q7", text: "Est-ce qu'il a atteint les objectifs pédagogiques fixés en début du cours ?" },
+  { id: "Q7", text: "Pensez-vous qu'il pourra atteindre ses objectifs à la fin de l'année ?" },
   { id: "Q8", text: "Est-ce que vous êtes satisfait de son cours ?" },
 ];
 

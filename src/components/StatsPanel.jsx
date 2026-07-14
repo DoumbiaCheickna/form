@@ -244,11 +244,11 @@ function SemesterSection({ sem, semEvals }) {
           <p className="text-xs font-bold text-slate-500 uppercase">Enseignants ({semClassement.length})</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {semClassement.map((t, i) => (
-              <div key={t.prof} className="bg-white rounded-lg border border-slate-100 p-2.5 flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-400 shrink-0">#{i + 1}</span>
+              <div key={t.prof} className="bg-white rounded-lg border border-slate-100 p-2 sm:p-2.5 flex items-center gap-2">
+                <span className="text-[10px] sm:text-xs font-bold text-slate-400 shrink-0">#{i + 1}</span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-slate-700 truncate">{t.prof}</p>
-                  <p className="text-sm font-bold text-slate-800">{t.score}/3</p>
+                  <p className="text-[10px] sm:text-xs font-semibold text-slate-700 truncate">{t.prof}</p>
+                  <p className="text-xs sm:text-sm font-bold text-slate-800">{t.score}/3</p>
                 </div>
                 <ScoreBadge score={t.score} />
               </div>
@@ -357,12 +357,12 @@ export default function StatsPanel({ evaluations }) {
       </div>
 
       {/* Niveau tabs */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
         {["all", "L1", "L2", "L3"].map((lvl) => (
           <button
             key={lvl}
             onClick={() => setActiveLevel(lvl)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 ${
               activeLevel === lvl
                 ? "bg-white text-[var(--color-primary)] shadow-lg"
                 : "bg-white/10 text-white hover:bg-white/20"
@@ -374,12 +374,12 @@ export default function StatsPanel({ evaluations }) {
       </div>
 
       {/* Stats globales rapides */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
         {Object.entries(stats.byNiveau).map(([niv, data]) => (
-          <div key={niv} className="bg-white/95 rounded-xl p-3 text-center border border-white/20 shadow-sm">
-            <p className="text-xs font-bold text-slate-500">{niv}</p>
-            <p className="text-lg font-bold text-slate-800">{getScore(data)}/3</p>
-            <p className="text-xs text-slate-400">{data.A + data.B + data.C} reponses</p>
+          <div key={niv} className="bg-white/95 rounded-xl p-2 sm:p-3 text-center border border-white/20 shadow-sm">
+            <p className="text-[10px] sm:text-xs font-bold text-slate-500">{niv}</p>
+            <p className="text-sm sm:text-lg font-bold text-slate-800">{getScore(data)}/3</p>
+            <p className="text-[10px] sm:text-xs text-slate-400">{data.A + data.B + data.C} rep.</p>
           </div>
         ))}
       </div>
@@ -440,16 +440,16 @@ export default function StatsPanel({ evaluations }) {
             ({filteredStats.classement.length} enseignants)
           </span>
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
           {filteredStats.classement.map((t, i) => (
-            <div key={t.prof} className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm flex items-center gap-3">
-              <span className="text-xs font-bold text-slate-400 shrink-0">#{i + 1}</span>
+            <div key={t.prof} className="bg-white rounded-xl border border-slate-200 p-2.5 sm:p-4 shadow-sm flex items-center gap-2 sm:gap-3">
+              <span className="text-[10px] sm:text-xs font-bold text-slate-400 shrink-0">#{i + 1}</span>
               <div className="hidden sm:block shrink-0">
                 <PieChart data={t.data} size="small" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-slate-700 truncate">{t.prof}</p>
-                <p className="text-sm font-bold text-slate-800">{t.score}/3</p>
+                <p className="text-[10px] sm:text-xs font-semibold text-slate-700 truncate">{t.prof}</p>
+                <p className="text-xs sm:text-sm font-bold text-slate-800">{t.score}/3</p>
                 <ScoreBadge score={t.score} />
               </div>
             </div>
@@ -523,7 +523,7 @@ export default function StatsPanel({ evaluations }) {
       {showModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-3xl shadow-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto space-y-4 sm:space-y-6">
+            <div className="relative bg-white rounded-3xl shadow-2xl p-3 sm:p-4 md:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto space-y-3 sm:space-y-4 md:space-y-6">
             <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-2xl text-slate-400 hover:text-slate-600 cursor-pointer">&times;</button>
             <h2 className="text-lg font-bold text-slate-800 text-center">Dashboard Global de l&apos;Enseignement</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">

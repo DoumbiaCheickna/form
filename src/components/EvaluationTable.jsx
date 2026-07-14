@@ -10,64 +10,62 @@ function getSlug(matiere) {
     .substring(0, 50);
 }
 
-function QuestionSelect({ name, value, onResponseChange, questionText }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-slate-500">{questionText}</span>
-      <select
-        name={name}
-        value={value}
-        onChange={(e) => onResponseChange(name, e.target.value)}
-        className={`w-full px-3 py-2.5 rounded-lg text-sm font-bold border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] cursor-pointer ${
-          value === ""
-            ? "border-red-200 bg-red-50/50"
-            : value === "A"
-            ? "border-red-200 bg-red-50 text-red-600"
-            : value === "B"
-            ? "border-amber-200 bg-amber-50 text-amber-600"
-            : "border-emerald-200 bg-emerald-50 text-emerald-600"
-        }`}
-      >
-        <option value="">--</option>
-        {Object.entries(ratingLabels).map(([key, label]) => (
-          <option key={key} value={key}>
-            {key} ({label})
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
 export default function EvaluationTable({ courses, responses, onResponseChange }) {
   if (!courses.length) return null;
 
   return (
     <>
-      {/* MOBILE / TABLET: Cards */}
+      {/* MOBILE / TABLET */}
       <div className="lg:hidden space-y-3">
+        {/* Récap des questions — au-dessus des cartes */}
+        <div className="bg-white/90 rounded-xl border border-slate-200 p-3 space-y-1 shadow-sm">
+          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">Questions</p>
+          {questions.map((q) => (
+            <p key={q.id} className="text-[11px] leading-snug text-slate-600">
+              <span className="font-bold text-[var(--color-primary)]">{q.id}</span>{" "}
+              {q.text}
+            </p>
+          ))}
+        </div>
+
+        {/* Cartes par matière */}
         {courses.map((cours, idx) => {
           const slug = getSlug(cours.matiere);
           return (
             <div
               key={idx}
-              className="bg-white rounded-xl border border-slate-200 p-4 space-y-3 shadow-sm"
+              className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm"
             >
-              <div className="border-b border-slate-100 pb-2">
-                <p className="font-semibold text-slate-800 text-sm">{cours.matiere}</p>
-                <p className="text-xs text-slate-500">{cours.prof}</p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <p className="font-semibold text-slate-800 text-sm leading-tight mb-2.5">{cours.matiere}</p>
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                 {questions.map((q) => {
                   const name = `${slug}_${q.id.toLowerCase()}`;
+                  const value = responses[name] || "";
                   return (
-                    <QuestionSelect
-                      key={q.id}
-                      name={name}
-                      value={responses[name] || ""}
-                      onResponseChange={onResponseChange}
-                      questionText={q.id}
-                    />
+                    <div key={q.id} className="flex flex-col items-center gap-1">
+                      <span className="text-[10px] font-bold text-slate-400">{q.id}</span>
+                      <select
+                        name={name}
+                        value={value}
+                        onChange={(e) => onResponseChange(name, e.target.value)}
+                        className={`w-full px-1 py-2 rounded-lg text-xs font-bold border-2 text-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] cursor-pointer min-h-[40px] ${
+                          value === ""
+                            ? "border-red-200 bg-red-50/50"
+                            : value === "A"
+                            ? "border-red-200 bg-red-50 text-red-600"
+                            : value === "B"
+                            ? "border-amber-200 bg-amber-50 text-amber-600"
+                            : "border-emerald-200 bg-emerald-50 text-emerald-600"
+                        }`}
+                      >
+                        <option value="">--</option>
+                        {Object.entries(ratingLabels).map(([key, label]) => (
+                          <option key={key} value={key}>
+                            {key} ({label})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   );
                 })}
               </div>
@@ -77,7 +75,18 @@ export default function EvaluationTable({ courses, responses, onResponseChange }
       </div>
 
       {/* DESKTOP: Table */}
-      <div className="hidden lg:block overflow-x-auto rounded-2xl shadow-xl border border-white/10">
+      <div className="hidden lg:block space-y-4">
+        <div className="bg-white/90 rounded-xl border border-slate-200 p-4 space-y-1 shadow-sm">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Questions</p>
+          {questions.map((q) => (
+            <p key={q.id} className="text-xs leading-snug text-slate-600">
+              <span className="font-bold text-[var(--color-primary)]">{q.id}</span>{" "}
+              {q.text}
+            </p>
+          ))}
+        </div>
+
+        <div className="overflow-x-auto rounded-2xl shadow-xl border border-white/10">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)]">
@@ -90,8 +99,7 @@ export default function EvaluationTable({ courses, responses, onResponseChange }
               {questions.map((q) => (
                 <th
                   key={q.id}
-                  className="px-3 py-3 text-center text-white font-semibold min-w-[80px]"
-                  title={q.text}
+                  className="px-2 py-3 text-center text-white font-semibold min-w-[80px]"
                 >
                   {q.id}
                 </th>
@@ -151,6 +159,7 @@ export default function EvaluationTable({ courses, responses, onResponseChange }
             })}
           </tbody>
         </table>
+        </div>
       </div>
     </>
   );

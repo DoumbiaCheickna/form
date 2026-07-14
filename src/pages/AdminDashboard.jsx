@@ -7,9 +7,9 @@ import StatsPanel from "../components/StatsPanel";
 
 function StatCard({ label, value, color = "from-[var(--color-primary)] to-[var(--color-primary-dark)]" }) {
   return (
-    <div className={`bg-gradient-to-br ${color} rounded-xl p-3 sm:p-4 text-white shadow-lg`}>
-      <p className="text-xs font-medium opacity-80">{label}</p>
-      <p className="text-2xl sm:text-3xl font-bold">{value}</p>
+    <div className={`bg-gradient-to-br ${color} rounded-xl p-2.5 sm:p-4 text-white shadow-lg`}>
+      <p className="text-[10px] sm:text-xs font-medium opacity-80 truncate">{label}</p>
+      <p className="text-lg sm:text-2xl sm:text-3xl font-bold">{value}</p>
     </div>
   );
 }
@@ -133,17 +133,17 @@ export default function AdminDashboard({ user }) {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Tableau de bord</h1>
-            <p className="text-slate-400 text-sm mt-1">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl sm:text-3xl font-bold text-white">Tableau de bord</h1>
+            <p className="text-slate-400 text-xs sm:text-sm mt-1 truncate">
               Connecte en tant que {user.email}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={toggleForm}
               disabled={toggling}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border cursor-pointer ${
+              className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 border cursor-pointer ${
                 formEnabled
                   ? "bg-emerald-500/20 text-emerald-300 border-emerald-400/30 hover:bg-emerald-500/30"
                   : "bg-red-500/20 text-red-300 border-red-400/30 hover:bg-red-500/30"
@@ -153,7 +153,7 @@ export default function AdminDashboard({ user }) {
             </button>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-medium transition-all duration-200 border border-white/10 cursor-pointer"
+              className="px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 border border-white/10 cursor-pointer"
             >
               Deconnexion
             </button>
@@ -161,10 +161,10 @@ export default function AdminDashboard({ user }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           <button
             onClick={() => setActiveTab("stats")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === "stats"
                 ? "bg-white text-[var(--color-primary)] shadow-lg"
                 : "bg-white/10 text-white hover:bg-white/20"
@@ -174,7 +174,7 @@ export default function AdminDashboard({ user }) {
           </button>
           <button
             onClick={() => setActiveTab("evals")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === "evals"
                 ? "bg-white text-[var(--color-primary)] shadow-lg"
                 : "bg-white/10 text-white hover:bg-white/20"
@@ -201,7 +201,7 @@ export default function AdminDashboard({ user }) {
         {activeTab === "evals" && (
           <>
             {/* Summary cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 sm:gap-4">
               <StatCard label="Total general" value={totalAll} />
               <StatCard label={`Annee ${filterYear}`} value={totalYear} color="from-emerald-600 to-emerald-700" />
               <StatCard label={`${filterSemester} - ${filterYear}`} value={totalFiltered} color="from-amber-500 to-amber-600" />
@@ -258,7 +258,7 @@ export default function AdminDashboard({ user }) {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-6 border border-white/20">
                 <h3 className="text-sm font-bold text-slate-800 mb-4">Evaluations par annee</h3>
                 <BarChart data={yearStats} />
