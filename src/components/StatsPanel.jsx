@@ -496,14 +496,59 @@ export default function StatsPanel({ evaluations }) {
             <option value="pie">Camembert</option>
           </select>
         </div>
+
         {profSelect && Object.keys(profNF).length > 0 && (
-          <div className="w-full max-w-[600px] h-[220px] sm:h-[250px]">
-            {chartType === "bar" && <Bar data={{ labels: Object.keys(profNF), datasets: [{ label: "Score", data: Object.keys(profNF).map((l) => getScore(profNF[l])), backgroundColor: BAR_COLORS }] }} options={{ responsive: true, maintainAspectRatio: false, ...barOpts }} />}
-            {chartType === "radar" && <Radar data={radarData} options={{ responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 3 } }, plugins: { legend: { display: false } } }} />}
-            {chartType === "pie" && (
-              <Pie data={{ labels: Object.keys(profNF), datasets: [{ data: Object.keys(profNF).map((l) => getScore(profNF[l])), backgroundColor: BAR_COLORS }] }} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { font: { size: 11 } } } } }} />
-            )}
-          </div>
+          <>
+            {/* Score par niveau */}
+            <div className="space-y-2">
+              <p className="text-xs font-bold text-slate-500 uppercase">Par niveau</p>
+              <div className="grid grid-cols-3 gap-2">
+                {["L1", "L2", "L3"].map((lvl) => {
+                  const levelEntries = Object.entries(profNF).filter(([k]) => k.startsWith(lvl));
+                  const total = levelEntries.reduce((acc, [, d]) => ({ A: acc.A + d.A, B: acc.B + d.B, C: acc.C + d.C }), emptyData());
+                  const score = getScore(total);
+                  const count = total.A + total.B + total.C;
+                  return (
+                    <div key={lvl} className={`rounded-xl p-3 text-center border ${count > 0 ? "bg-white border-slate-200 shadow-sm" : "bg-slate-50 border-slate-100"}`}>
+                      <p className="text-xs font-bold text-slate-500">{lvl}</p>
+                      <p className={`text-lg font-bold ${count > 0 ? "text-slate-800" : "text-slate-300"}`}>{count > 0 ? `${score}/3` : "—"}</p>
+                      {count > 0 && <ScoreBadge score={score} />}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Score par filiere */}
+            <div className="space-y-2">
+              <p className="text-xs font-bold text-slate-500 uppercase">Par filiere</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {Object.entries(profNF).sort().map(([key, data]) => {
+                  const score = getScore(data);
+                  const count = data.A + data.B + data.C;
+                  return (
+                    <div key={key} className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm flex items-center gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] sm:text-xs font-semibold text-slate-700 truncate">{key}</p>
+                        <p className="text-sm font-bold text-slate-800">{score}/3</p>
+                        <p className="text-[10px] text-slate-400">{count} rep.</p>
+                      </div>
+                      <ScoreBadge score={score} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Graphique */}
+            <div className="w-full max-w-[600px] h-[220px] sm:h-[250px]">
+              {chartType === "bar" && <Bar data={{ labels: Object.keys(profNF), datasets: [{ label: "Score", data: Object.keys(profNF).map((l) => getScore(profNF[l])), backgroundColor: BAR_COLORS }] }} options={{ responsive: true, maintainAspectRatio: false, ...barOpts }} />}
+              {chartType === "radar" && <Radar data={radarData} options={{ responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 3 } }, plugins: { legend: { display: false } } }} />}
+              {chartType === "pie" && (
+                <Pie data={{ labels: Object.keys(profNF), datasets: [{ data: Object.keys(profNF).map((l) => getScore(profNF[l])), backgroundColor: BAR_COLORS }] }} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { font: { size: 11 } } } } }} />
+              )}
+            </div>
+          </>
         )}
         {profSelect && Object.keys(profNF).length === 0 && (
           <p className="text-sm text-slate-400">Aucune donnee pour cet enseignant.</p>
