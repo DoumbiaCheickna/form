@@ -1,10 +1,11 @@
-import { useState, useCallback } from "react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useState, useCallback, useEffect } from "react";
+import { collection, addDoc, serverTimestamp, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import {
   getAcademicYear,
   getSemester,
   getCoursesForClass,
+  getSemestersForPeriod,
 } from "../data/courses";
 import Carousel from "../components/Carousel";
 import ClassSelector from "../components/ClassSelector";
@@ -16,12 +17,27 @@ export default function StudentForm() {
   const academicYear = getAcademicYear();
   const semester = getSemester();
 
+  const [formEnabled, setFormEnabled] = useState(true);
   const [selectedClass, setSelectedClass] = useState("");
   const [responses, setResponses] = useState({});
   const [commentaires, setCommentaires] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const snap = await getDoc(doc(db, "settings", "form"));
+        if (snap.exists()) {
+          setFormEnabled(snap.data().enabled ?? true);
+        }
+      } catch {
+        setFormEnabled(true);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const courses = getCoursesForClass(academicYear, semester, selectedClass);
 
@@ -57,7 +73,12 @@ export default function StudentForm() {
     try {
       await addDoc(collection(db, "evaluations"), {
         academicYear,
-        semester,
+        semester: getSemestersForPeriod(semester).find((s) => {
+          const match = selectedClass.match(/L(\d)/i);
+          if (!match) return false;
+          const level = parseInt(match[1], 10);
+          return s === `S${(level - 1) * 2 + (semester === "S2" ? 2 : 1)}`;
+        }) || semester,
         classe: selectedClass,
         commentaires: commentaires.trim(),
         reponses: responses,
@@ -77,6 +98,24 @@ export default function StudentForm() {
       setSubmitting(false);
     }
   };
+
+  if (!formEnabled) {
+    return (
+      <div className="min-h-screen py-8 px-4 flex items-center justify-center">
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 sm:p-12 text-center border border-white/20 max-w-md">
+          <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Formulaire désactivé</h2>
+          <p className="text-slate-500 text-sm">
+            Le formulaire d'évaluation n'est pas disponible pour le moment. Veuillez revenir plus tard.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-8 px-4">

@@ -24,6 +24,7 @@ const PIE_COLORS = ["#FF6384", "#FFCE56", "#36A2EB"];
 const BAR_COLORS = ["#36A2EB", "#FF9800", "#4CAF50", "#9C27B0", "#FF6384", "#FFCE56", "#00BCD4", "#E91E63"];
 const LEVEL_LABELS = { L1: "L1 - Licence 1", L2: "L2 - Licence 2", L3: "L3 - Licence 3" };
 const LEVEL_SEMESTERS = { L1: ["S1", "S2"], L2: ["S3", "S4"], L3: ["S5", "S6"] };
+const SEMESTER_LABELS = { S1: "Semestre 1", S2: "Semestre 2", S3: "Semestre 3", S4: "Semestre 4", S5: "Semestre 5", S6: "Semestre 6" };
 
 function getScore(data) {
   const total = data.A + data.B + data.C;
@@ -52,10 +53,6 @@ function getFiliere(classe) {
   if (!m) return "Autre";
   const f = m[1].trim();
   return /GL|Data IA|DWM|CS|MPG|AD|MCD/i.test(f) ? "Informatique" : "Gestion";
-}
-
-function sumData(a, b) {
-  return { A: a.A + b.A, B: a.B + b.B, C: a.C + b.C };
 }
 
 function emptyData() {
@@ -175,19 +172,20 @@ function ScoreBadge({ score }) {
   );
 }
 
-function LevelSection({ level, levelEvals, stats }) {
-  const semesters = LEVEL_SEMESTERS[level];
-  const semStats = semesters.map((s) => ({
-    sem: s,
-    data: stats.byLevelSemester[level]?.[s] || emptyData(),
-    evals: levelEvals.filter((e) => e.semester === s),
-  }));
+function SemesterSection({ sem, semEvals }) {
+  const semData = emptyData();
+  semEvals.forEach((e) => {
+    Object.values(e.reponses || {}).forEach((v) => {
+      if (v) semData[v]++;
+    });
+  });
+  const semScore = getScore(semData);
 
-  const classes = [...new Set(levelEvals.map((e) => e.classe))].sort();
+  const classes = [...new Set(semEvals.map((e) => e.classe))].sort();
   const classDataMap = {};
   classes.forEach((c) => {
     classDataMap[c] = emptyData();
-    levelEvals.filter((e) => e.classe === c).forEach((e) => {
+    semEvals.filter((e) => e.classe === c).forEach((e) => {
       Object.values(e.reponses || {}).forEach((v) => {
         if (v) classDataMap[c][v]++;
       });
@@ -195,7 +193,7 @@ function LevelSection({ level, levelEvals, stats }) {
   });
 
   const filiereMap = {};
-  levelEvals.forEach((e) => {
+  semEvals.forEach((e) => {
     const f = getFiliere(e.classe || "");
     if (!filiereMap[f]) filiereMap[f] = emptyData();
     Object.values(e.reponses || {}).forEach((v) => {
@@ -203,67 +201,50 @@ function LevelSection({ level, levelEvals, stats }) {
     });
   });
 
-  const levelScore = getScore(semStats.reduce((acc, s) => sumData(acc, s.data), emptyData()));
-
-  const teachersInLevel = {};
-  levelEvals.forEach((e) => {
+  const teachersInSem = {};
+  semEvals.forEach((e) => {
     Object.entries(e.reponses || {}).forEach(([key, val]) => {
       if (!val) return;
       const [prof] = key.split(/_(q\d+)/i);
-      if (!teachersInLevel[prof]) teachersInLevel[prof] = emptyData();
-      teachersInLevel[prof][val]++;
+      if (!teachersInSem[prof]) teachersInSem[prof] = emptyData();
+      teachersInSem[prof][val]++;
     });
   });
-  const levelClassement = Object.entries(teachersInLevel)
+  const semClassement = Object.entries(teachersInSem)
     .map(([prof, data]) => ({ prof, score: getScore(data), data }))
     .sort((a, b) => b.score - a.score);
 
   return (
-    <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-6 border border-white/20 space-y-5">
+    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-bold text-slate-800">{LEVEL_LABELS[level]}</h3>
-        <ScoreBadge score={levelScore} />
+        <h4 className="text-sm font-bold text-slate-700">{SEMESTER_LABELS[sem] || sem}</h4>
+        <ScoreBadge score={semScore} />
       </div>
-
-      {/* Semestres */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {semStats.map(({ sem, data }) => (
-          <div key={sem} className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-bold text-slate-700">{sem}</h4>
-              <span className="text-xs text-slate-400">{data.A + data.B + data.C} reponses</span>
-            </div>
-            <PieChart data={data} size="small" />
-            <ScoreBadge score={getScore(data)} />
-          </div>
-        ))}
-      </div>
-
-      {/* Par classe */}
-      {classes.length > 0 && (
-        <div>
-          <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Par classe</h4>
-          <BarChart labels={classes} dataMap={classDataMap} />
+        <div className="space-y-2">
+          <p className="text-xs font-bold text-slate-500 uppercase">Repartition</p>
+          <PieChart data={semData} size="small" />
+          <p className="text-xs text-slate-400 text-center">{semData.A + semData.B + semData.C} reponses</p>
         </div>
-      )}
-
-      {/* Par filiere */}
+        {classes.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-bold text-slate-500 uppercase">Par classe</p>
+            <BarChart labels={classes} dataMap={classDataMap} />
+          </div>
+        )}
+      </div>
       {Object.keys(filiereMap).length > 0 && (
-        <div>
-          <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Par filiere</h4>
+        <div className="space-y-2">
+          <p className="text-xs font-bold text-slate-500 uppercase">Par filiere</p>
           <BarChart labels={Object.keys(filiereMap)} dataMap={filiereMap} />
         </div>
       )}
-
-      {/* Top enseignants du niveau */}
-      {levelClassement.length > 0 && (
-        <div>
-          <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">
-            Enseignants ({levelClassement.length})
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {levelClassement.map((t, i) => (
-              <div key={t.prof} className="bg-white rounded-lg border border-slate-100 p-3 flex items-center gap-3">
+      {semClassement.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-bold text-slate-500 uppercase">Enseignants ({semClassement.length})</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {semClassement.map((t, i) => (
+              <div key={t.prof} className="bg-white rounded-lg border border-slate-100 p-2.5 flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-400 shrink-0">#{i + 1}</span>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold text-slate-700 truncate">{t.prof}</p>
@@ -275,6 +256,37 @@ function LevelSection({ level, levelEvals, stats }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function LevelSection({ level, levelEvals }) {
+  const semesters = LEVEL_SEMESTERS[level];
+  const semEvalsMap = {};
+  semesters.forEach((s) => {
+    semEvalsMap[s] = levelEvals.filter((e) => e.semester === s);
+  });
+
+  return (
+    <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-6 border border-white/20 space-y-5">
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-bold text-slate-800">{LEVEL_LABELS[level]}</h3>
+        <span className="text-xs text-slate-400">{levelEvals.length} evaluations</span>
+      </div>
+
+      <div className="space-y-4">
+        {semesters.map((s) => {
+          const semEvals = semEvalsMap[s];
+          if (semEvals.length === 0) {
+            return (
+              <div key={s} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                <p className="text-sm text-slate-400">{SEMESTER_LABELS[s] || s} — Aucune evaluation</p>
+              </div>
+            );
+          }
+          return <SemesterSection key={s} sem={s} semEvals={semEvals} />;
+        })}
+      </div>
     </div>
   );
 }
@@ -409,7 +421,7 @@ export default function StatsPanel({ evaluations }) {
           {["L1", "L2", "L3"].map((lvl) => {
             const levelEvals = evaluations.filter((e) => getNiveau(e.classe || "") === lvl);
             if (levelEvals.length === 0) return null;
-            return <LevelSection key={lvl} level={lvl} levelEvals={levelEvals} stats={stats} />;
+            return <LevelSection key={lvl} level={lvl} levelEvals={levelEvals} />;
           })}
         </>
       ) : (
@@ -417,7 +429,6 @@ export default function StatsPanel({ evaluations }) {
           key={activeLevel}
           level={activeLevel}
           levelEvals={evaluations.filter((e) => getNiveau(e.classe || "") === activeLevel)}
-          stats={stats}
         />
       )}
 

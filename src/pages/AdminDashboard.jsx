@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
-import { collection, query, orderBy, getDocs } from "firebase/firestore";
+import { collection, query, orderBy, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import { academicData, getAcademicYear, getSemester } from "../data/courses";
+import { academicData, getAcademicYear, getSemester, getSemestersForPeriod, getClassesForSemester } from "../data/courses";
 import StatsPanel from "../components/StatsPanel";
 
 function StatCard({ label, value, color = "from-[var(--color-primary)] to-[var(--color-primary-dark)]" }) {
@@ -41,6 +41,35 @@ export default function AdminDashboard({ user }) {
   const [filterSemester, setFilterSemester] = useState(getSemester());
   const [filterClass, setFilterClass] = useState("");
   const [activeTab, setActiveTab] = useState("stats");
+  const [formEnabled, setFormEnabled] = useState(true);
+  const [toggling, setToggling] = useState(false);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const snap = await getDoc(doc(db, "settings", "form"));
+        if (snap.exists()) {
+          setFormEnabled(snap.data().enabled ?? true);
+        }
+      } catch (err) {
+        console.error("Erreur chargement settings :", err);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const toggleForm = async () => {
+    setToggling(true);
+    try {
+      const newValue = !formEnabled;
+      await setDoc(doc(db, "settings", "form"), { enabled: newValue });
+      setFormEnabled(newValue);
+    } catch (err) {
+      console.error("Erreur toggle formulaire :", err);
+    } finally {
+      setToggling(false);
+    }
+  };
 
   useEffect(() => {
     const fetchEvaluations = async () => {
@@ -61,13 +90,13 @@ export default function AdminDashboard({ user }) {
 
   const filtered = evaluations.filter((ev) => {
     if (ev.academicYear !== filterYear) return false;
-    if (ev.semester !== filterSemester) return false;
+    const periodSems = getSemestersForPeriod(filterSemester);
+    if (!periodSems.includes(ev.semester)) return false;
     if (filterClass && ev.classe !== filterClass) return false;
     return true;
   });
 
-  const semData = academicData[filterYear]?.[filterSemester] || {};
-  const classList = Object.keys(semData);
+  const classList = getClassesForSemester(filterYear, filterSemester);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -79,16 +108,16 @@ export default function AdminDashboard({ user }) {
   const totalFiltered = filtered.length;
   const uniqueClasses = new Set(yearEvals.map((e) => e.classe)).size;
 
-  const semesters = Object.keys(academicData[filterYear] || {});
+  const semesters = ["S1", "S2"];
   const semStats = semesters.map((s) => ({
     label: s,
-    value: yearEvals.filter((e) => e.semester === s).length,
+    value: yearEvals.filter((e) => getSemestersForPeriod(s).includes(e.semester)).length,
     color: s === filterSemester ? "bg-[var(--color-accent)]" : "bg-[var(--color-primary)]",
   }));
 
   const classStats = classList.map((c) => ({
     label: c,
-    value: yearEvals.filter((e) => e.classe === c && e.semester === filterSemester).length,
+    value: filtered.filter((e) => e.classe === c).length,
     color: c === filterClass ? "bg-[var(--color-accent)]" : "bg-[var(--color-primary)]",
   }));
 
@@ -110,12 +139,25 @@ export default function AdminDashboard({ user }) {
               Connecte en tant que {user.email}
             </p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-medium transition-all duration-200 border border-white/10 cursor-pointer"
-          >
-            Deconnexion
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={toggleForm}
+              disabled={toggling}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border cursor-pointer ${
+                formEnabled
+                  ? "bg-emerald-500/20 text-emerald-300 border-emerald-400/30 hover:bg-emerald-500/30"
+                  : "bg-red-500/20 text-red-300 border-red-400/30 hover:bg-red-500/30"
+              } disabled:opacity-50`}
+            >
+              {formEnabled ? "Formulaire actif" : "Formulaire desactive"}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-medium transition-all duration-200 border border-white/10 cursor-pointer"
+            >
+              Deconnexion
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -193,7 +235,7 @@ export default function AdminDashboard({ user }) {
                     className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
                   >
                     {semesters.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                      <option key={s} value={s}>{s === "S1" ? "Semestre 1" : "Semestre 2"}</option>
                     ))}
                   </select>
                 </div>
